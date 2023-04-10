@@ -30,8 +30,8 @@ impl ImageBuffer {
         for i in 0..WIDTH * HEIGHT {
             let index: usize = (4 * ((i / HEIGHT) * WIDTH + (i % WIDTH))) as usize;
             self.rgb[index] = min(max(0, rgb[0] as u32), 255);
-            self.rgb[index + 1] = min(max(0, rgb[0] as u32), 255);
-            self.rgb[index + 2] = min(max(0, rgb[0] as u32), 255);
+            self.rgb[index + 1] = min(max(0, rgb[1] as u32), 255);
+            self.rgb[index + 2] = min(max(0, rgb[2] as u32), 255);
             self.rgb[index + 3] = 255;
         }
     }
@@ -44,7 +44,10 @@ impl ImageBuffer {
                 let index: usize = (WIDTH as i32 * (y + dy) + (x + dx)) as usize;
                 let opacity =
                     f64::max(0.,
-                             o * (1. - f64::sqrt(f64::powf(dx as f64, 2.) + f64::powf(dy as f64, 2.)) / r as f64));
+                             o * (1. -
+                                 f64::sqrt(f64::powf(dx as f64, 2.) +
+                                    f64::powf(dy as f64, 2.))
+                                 / r as f64));
                 if opacity == 0. { continue }
                 for n in 0..38 {
                     self.pigment[index][0][n] =
@@ -56,11 +59,15 @@ impl ImageBuffer {
                 }
                 let rgb = pigment_to_rgb(&self.pigment[index]);
                 self.rgb[4 * index] = min(max(0, rgb[0] as u32), 255);
-                self.rgb[4 * index + 1] = min(max(0, rgb[0] as u32), 255);
-                self.rgb[4 * index + 2] = min(max(0, rgb[0] as u32), 255);
+                self.rgb[4 * index + 1] = min(max(0, rgb[1] as u32), 255);
+                self.rgb[4 * index + 2] = min(max(0, rgb[2] as u32), 255);
                 self.rgb[4 * index + 3] = 255;
             }
         }
+    }
+    #[wasm_bindgen(getter)]
+    pub fn rgb(&self) -> js_sys::Uint32Array {
+        js_sys::Uint32Array::from(&self.rgb[..])
     }
 }
 
